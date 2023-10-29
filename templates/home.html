@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>NBA by Jules</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <link rel="stylesheet" href="../static/styles/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka&family=Nunito&family=Rubik&family=Source+Sans+Pro&display=swap" rel="stylesheet">
+  </head>
+  
+  <body>
+
+    <div class="container-fluid">
+      
+      <nav>
+        <ul class="nav nav-tabs justify-content-center">
+          <li>
+            <button class="btn btn-nav chosen" id="btn-results" type="button" onclick="showResults()">Results</button>
+          </li>
+          <li>
+            <button class="btn btn-nav" id="btn-rankings" type="button" onclick="showRanking()">Rankings</button>
+          </li>
+          <li>
+            <button class="btn btn-nav" id="btn-search" type="button" onclick="showPlayer()">Search Player</button>
+          </li>
+        </ul>
+      </nav>
+      
+    </br>
+    
+      <div class="row" id="div-resultats">
+        
+        <form class="form-date" method="GET">
+          <input class="form-control text-center input-search-date" type="date" name="date_choisie" id="input-date" min="2019-10-22" required>
+          <button class="btn btn-outline-danger btn-search-date" type="submit">Search results</button> 
+        </form>
+
+        {% for item in games %}
+        <div class="col-xxl-12">
+          <table class="table table-sm table-borderless resultats">
+            <tr class="clickable-row">
+              {% if (item.home_score >  0) and (item.away_score >  0) %}
+
+                <td class="align-middle"><img class='logo_photo' src = {{item.logo_home}}></td>
+                {% if item.winner == "home" %}
+                  <td class='home align-middle'><span class="winner">{{item.home}}</span></td>
+                  {% if item.period < 5  %}
+                    <td class='score align-middle'><span class="winner_score">{{item.home_score}}</span> - {{item.away_score}}</td>
+                  {% endif %}
+                  {% if item.period == 5 %}
+                    <td class='score align-middle'><span class="winner_score">{{item.home_score}}</span> - {{item.away_score}}<br>OT</td>
+                  {% endif %}
+                  {% if item.period > 5 %}
+                    <td class='score align-middle'><span class="winner_score">{{item.home_score}}</span> - {{item.away_score}}<br>{{item.period - 4}}OT</td>
+                  {% endif %}
+                  <td class='away align-middle'>{{item.away}}</td>
+                
+                {% else %}
+                  <td class='home align-middle'>{{item.home}}</td>
+                  {% if item.period < 5  %}
+                    <td class='score align-middle'>{{item.home_score}} - <span class="winner_score">{{item.away_score}}</span></td>
+                  {% endif %}
+                  {% if item.period == 5 %}
+                    <td class='score align-middle'>{{item.home_score}} - <span class="winner_score">{{item.away_score}}</span><br>OT</td>
+                  {% endif %}
+                  {% if item.period > 5 %}
+                    <td class='score align-middle'>{{item.home_score}} - <span class="winner_score">{{item.away_score}}</span><br>{{item.period - 4}}OT</td>
+                  {% endif %}
+                  
+                  <td class='away align-middle'><span class="winner">{{item.away}}</span></td>
+                {% endif %}
+                <td class="align-middle"><img class='logo_photo' src = {{item.logo_away}}></td>
+
+              {% else %}
+                <td><img class='logo_photo' src = {{item.logo_home}}></td>
+                <td class='home align-middle'>{{item.home}}</td>
+                <td class='score align-middle'>{{item.heure}}</td>
+                <td class='away align-middle'>{{item.away}}</td>
+
+                <td><img class='logo_photo' src = {{item.logo_away}}></td>
+              {% endif %}
+            </tr>            
+          </table>
+
+          {% if (item.home_score >  0) or (item.away_score >  0) %}
+          <table class="table table-sm table-hover hidden hiddenTable">
+            <thead>
+              <tr>
+                <th class='text-center' scope="col">Team</th>
+                <th class='text-center' scope="col">Player</th>
+                <th class='text-center' scope="col">Points</th>
+                <th class='text-center' scope="col">Rebounds</th>
+                <th class='text-center' scope="col">Assists</th>
+                <th class='text-center' scope="col">Steals</th>
+                <th class='text-center' scope="col">Blocks</th>
+                <th class='text-center' scope="col">FGM</th>
+                <th class='text-center' scope="col">FGA</th>
+                <th class='text-center' scope="col">FG3M</th>
+                <th class='text-center' scope="col">FG3A</th>
+                <th class='text-center' scope="col">FTM</th>
+                <th class='text-center' scope="col">FTA</th>
+                <th class='text-center' scope="col">TTFL</th>
+              </tr>
+            </thead>
+            
+            {% for id_game,stats in perfs.items() %}
+              {% if item.id_game == id_game%}
+                {% for p in stats %}
+                  <tr>
+                    <td class="align-middle team2"><img class='logo_photo' src = {{p[1].logo}}></td>
+                    <td class='align-middle player2'>{{p[0]}}</td>
+                    <td class='align-middle stat'>{{p[1].pts}}</td>
+                    <td class='align-middle stat'>{{p[1].reb}}</td>
+                    <td class='align-middle stat'>{{p[1].ast}}</td>
+                    <td class='align-middle stat'>{{p[1].stl}}</td>
+                    <td class='align-middle stat'>{{p[1].blk}}</td>
+                    <td class='align-middle stat fg'>{{p[1].fgm}}</td>
+                    <td class='align-middle stat fg'>{{p[1].fga}}</td>
+                    <td class='align-middle stat fg3'>{{p[1].fg3m}}</td>
+                    <td class='align-middle stat fg3'>{{p[1].fg3a}}</td>
+                    <td class='align-middle stat ft'>{{p[1].ftm}}</td>
+                    <td class='align-middle stat ft'>{{p[1].fta}}</td>
+                    <td class='align-middle stat ttfl'>{{p[1].TTFL}}</td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </table>
+          {% endif %}
+        </div>
+        {% endfor %}
+
+        {% if games != [] %}
+          {% if ttfl != [] %}
+            <div class="col-xl">
+              <h6 class="list_ttfl" id="list_ttfl">TTFL Scores of this night</h6>
+              <table class="table table-sm table-hover table-classement table-striped">
+                <thead class='table-light'>
+                  <tr>
+                    <th class='ranking'></th>
+                    <th class='text-center player_ttfl_header'>Player</th>
+                    <th class='text-center score_ttfl_header'>TTFL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for p in ttfl %}
+                  <tr>
+                    <th class='align-middle text-center ttfl_ranking' scope='row'>{{loop.index}} <img class='logo_classement' src = {{p.logo}}></th>
+                    <td class='align-middle text-center player_ttfl_name'>{{p.player}}</td>
+                    <td class='align-middle text-center score_ttfl'>{{p.TTFL}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="col-xl">
+            <br>
+            <p class="correction">No games on this date !</p> 
+          </div>
+        {% endif %}
+      </div>
+
+      
+      <div class="row" id="div-classement">
+        <div class="col-lg-6">
+          <h6 class="west">Western Conference</h6>
+          <table class="table table-sm table-hover table-classement">
+            <thead class='table-light'>
+              <tr>
+                <th class='ranking'></th>
+                <th class='text-center team_header'>Team</th>
+                <th class='text-center victory_header'>V</th>
+                <th class='text-center losses_header'>D</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in standing.West[0:6] %}
+              <tr class='playoffs'>
+                <th class='text-center ranking align-middle' scope='row'>{{loop.index}} <img class='logo_classement align-middle' src = {{item.logo}}></th>
+                <td class='team align-middle'>{{item.team}}</td>
+                <td class='victory align-middle'>{{item.V}}</td>
+                <td class='losses align-middle'>{{item.D}}</td>
+              </tr>
+              {% endfor %}
+              {% for item in standing.West[6:10] %}
+              <tr class='play-in'>
+                <th class='text-center align-middle ranking' scope='row'>{{loop.index+6}} <img class='logo_classement align-middle' src = {{item.logo}}></th>
+                <td class='team align-middle'>{{item.team}}</td>
+                <td class='victory align-middle'>{{item.V}}</td>
+                <td class='losses align-middle'>{{item.D}}</td>
+              </tr>
+              {% endfor %}
+              {% for item in standing.West[10:15] %}
+              <tr class='eliminated'>
+                <th class='text-center ranking align-middle' scope='row'>{{loop.index+10}} <img class='logo_classement align-middle' src = {{item.logo}}></th>
+                <td class='team align-middle'>{{item.team}}</td>
+                <td class='victory align-middle'>{{item.V}}</td>
+                <td class='losses align-middle'>{{item.D}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="col-lg-6">
+          <h6 class="east">Eastern Conference</h6>
+          <table class="table table-sm table-hover table-classement">
+            <thead class='table-light'>
+              <tr>
+                <th class='ranking'></th>
+                <th class='text-center team_header'>Team</th>
+                <th class='text-center victory_header'>V</th>
+                <th class='text-center losses_header'>D</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in standing.East[0:6] %}
+              <tr class='playoffs'>
+                <th class='text-center ranking align-middle' scope='row'>{{loop.index}} <img class='logo_classement align-middle' src = {{item.logo}}></th>
+                <td class='team align-middle'>{{item.team}}</td>
+                <td class='victory align-middle'>{{item.V}}</td>
+                <td class='losses align-middle'>{{item.D}}</td>
+              </tr>
+              {% endfor %}
+              {% for item in standing.East[6:10] %}
+              <tr class='play-in'>
+                <th class='text-center ranking align-middle' scope='row'>{{loop.index+6}} <img class='logo_classement align-middle' src = {{item.logo}}></th>
+                <td class='team align-middle'>{{item.team}}</td>
+                <td class='victory align-middle'>{{item.V}}</td>
+                <td class='losses align-middle'>{{item.D}}</td>
+              </tr>
+              {% endfor %}
+              {% for item in standing.East[10:15] %}
+              <tr class='eliminated'>
+                <th class='text-center ranking align-middle' scope='row'>{{loop.index+10}} <img class='logo_classement align-middle' src = {{item.logo}}></th>
+                <td class='team align-middle'>{{item.team}}</td>
+                <td class='victory align-middle'>{{item.V}}</td>
+                <td class='losses align-middle'>{{item.D}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row" id="div-player">
+        <div class="col-lg">
+          <h2 id="check">Check average stats of any player</h2>
+          <form method="GET" class="input-group">
+            <input class="form-control input-search-player" type="text" name="joueur" id="input-search" placeholder="Type full name (Ex: LeBron James)" required>
+            <button class="btn btn-outline-primary btn-search-player" type="submit">Search</button>
+            
+          </form> 
+          {% if averages != ''%}
+            <table class="table table-sm table-hover">
+              {% if averages == "Existe pas" %}
+                <br>
+                <p class="correction">No player found with this name, check if your query is correct</p> 
+              {% else %}
+              <thead class='table-light'>
+                <tr>
+                  <th class='align-middle text-center player_header'>Player</th>
+                  <th class='align-middle text-center stat_header'>Games Played</th>
+                  <th class='align-middle text-center stat_header'>Points</th>
+                  <th class='align-middle text-center stat_header'>Rebounds</th>
+                  <th class='align-middle text-center stat_header'>Assists</th>
+                  <th class='align-middle text-center stat_header'>Steals</th>
+                  <th class='align-middle text-center stat_header'>Blocks</th>
+                  <th class='align-middle text-center stat_header'>FG%</th>
+                  <th class='align-middle text-center stat_header'>FG3%</th>
+                  <th class='align-middle text-center stat_header'>FT%</th>
+                  <th class='align-middle text-center stat_header'>TO</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for average in averages %}
+                <tr>
+                  <th class='align-middle text-center player3'>{{average.name}} <img class = 'logo_classement' src = {{average.logo}}></th>
+                  <td class='align-middle text-center stat'>{{average.games_played}}</td>
+                  <td class='align-middle text-center stat'>{{average.pts}}</td>
+                  <td class='align-middle text-center stat'>{{average.reb}}</td>
+                  <td class='align-middle text-center stat'>{{average.ast}}</td>
+                  <td class='align-middle text-center stat'>{{average.stl}}</td>
+                  <td class='align-middle text-center stat'>{{average.blk}}</td>
+                  <td class='align-middle text-center stat'>{{average.fg_pct}}</td>
+                  <td class='align-middle text-center stat'>{{average.fg3_pct}}</td>
+                  <td class='align-middle text-center stat'>{{average.ft_pct}}</td>
+                  <td class='align-middle text-center stat'>{{average.to}}</td>
+                </tr>
+                {% endfor %}
+              {% endif %}
+              </tbody>
+            </table>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script type="text/javascript" src="{{ url_for('static', filename = 'script.js') }}"></script>
+  <script>
+    function showResults() {
+      document.getElementById('div-resultats').style.display = '';
+      document.getElementById('btn-results').className += " chosen";
+      document.getElementById('btn-rankings').classList.remove("chosen");
+      document.getElementById('btn-search').classList.remove("chosen");
+      document.getElementById('div-player').style.display = 'none';
+      document.getElementById('div-classement').style.display = 'none';
+    }
+
+    function showRanking() {
+      document.getElementById('div-classement').style.display = '';
+      document.getElementById('btn-rankings').className += " chosen";
+      document.getElementById('btn-results').classList.remove("chosen");
+      document.getElementById('btn-search').classList.remove("chosen");
+      document.getElementById('div-player').style.display = 'none';
+      document.getElementById('div-resultats').style.display = 'none';
+    }
+
+    function showPlayer() {
+      document.getElementById('div-player').style.display = '';
+      document.getElementById('btn-search').className += " chosen";
+      document.getElementById('btn-results').classList.remove("chosen");
+      document.getElementById('btn-rankings').classList.remove("chosen");
+      document.getElementById('div-classement').style.display = 'none';
+      document.getElementById('div-resultats').style.display = 'none';
+    }
+  </script>
+</html>
